@@ -1,0 +1,262 @@
+<Window x:Class="ScreenRecorder.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:ScreenRecorder.ViewModels"
+        Title="ScreenRecorder"
+        Height="460" Width="520"
+        MinHeight="420" MinWidth="460"
+        Background="#1A1A2E"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        ResizeMode="CanResize"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </Window.Resources>
+
+    <Border CornerRadius="12" Background="#1A1A2E" BorderBrush="#0F3460" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"/>  <!-- Title bar -->
+                <RowDefinition Height="*"/>   <!-- Content -->
+            </Grid.RowDefinitions>
+
+            <!-- Custom Title Bar -->
+            <Border Grid.Row="0" Background="#0F3460" CornerRadius="12,12,0,0" MouseLeftButtonDown="TitleBar_MouseDown">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
+                        <Ellipse Width="10" Height="10" Fill="#E53935" Margin="0,0,6,0"/>
+                        <TextBlock Text="ScreenRecorder" Foreground="White" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,0">
+                        <Button Content="─" Width="30" Height="24" Click="MinimizeButton_Click"
+                                Background="Transparent" Foreground="#B0BEC5" BorderThickness="0"
+                                FontSize="14" Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#1A4A80"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="✕" Width="30" Height="24" Click="CloseButton_Click"
+                                Background="Transparent" Foreground="#B0BEC5" BorderThickness="0"
+                                FontSize="12" Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#C62828"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Main Content -->
+            <Grid Grid.Row="1" Margin="20,16,20,16">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>  <!-- Timer -->
+                    <RowDefinition Height="Auto"/>  <!-- Status -->
+                    <RowDefinition Height="Auto"/>  <!-- Main Controls -->
+                    <RowDefinition Height="Auto"/>  <!-- Divider -->
+                    <RowDefinition Height="Auto"/>  <!-- Settings Row 1 -->
+                    <RowDefinition Height="Auto"/>  <!-- Settings Row 2 -->
+                    <RowDefinition Height="Auto"/>  <!-- Output Folder -->
+                    <RowDefinition Height="Auto"/>  <!-- Last saved -->
+                </Grid.RowDefinitions>
+
+                <!-- Timer Display -->
+                <TextBlock Grid.Row="0"
+                           Text="{Binding ElapsedTimeText}"
+                           Foreground="White"
+                           FontSize="48"
+                           FontWeight="Light"
+                           FontFamily="Consolas"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,4"/>
+
+                <!-- Status Text -->
+                <TextBlock Grid.Row="1"
+                           Text="{Binding StatusText}"
+                           Foreground="#B0BEC5"
+                           FontSize="12"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,16"/>
+
+                <!-- Main Control Buttons -->
+                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,16">
+
+                    <!-- Record Button -->
+                    <Button Command="{Binding StartRecordingCommand}"
+                            Width="64" Height="64" Margin="8,0"
+                            Cursor="Hand" ToolTip="Start Recording">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Grid>
+                                    <Ellipse x:Name="OuterRing" Width="64" Height="64" Fill="Transparent"
+                                             Stroke="#E53935" StrokeThickness="2"/>
+                                    <Ellipse x:Name="InnerCircle" Width="48" Height="48" Fill="#E53935"
+                                             HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Grid>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="InnerCircle" Property="Fill" Value="#FF5252"/>
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter TargetName="InnerCircle" Property="Fill" Value="#555"/>
+                                        <Setter TargetName="OuterRing" Property="Stroke" Value="#555"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <!-- Stop Button -->
+                    <Button Command="{Binding StopRecordingCommand}"
+                            Width="52" Height="52" Margin="8,0"
+                            Cursor="Hand" ToolTip="Stop Recording">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="StopBorder" Background="#424242" CornerRadius="6"
+                                        Width="52" Height="52">
+                                    <Rectangle Width="20" Height="20" Fill="White"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="StopBorder" Property="Background" Value="#616161"/>
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter TargetName="StopBorder" Property="Opacity" Value="0.3"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <!-- Pause/Resume Button -->
+                    <Button Command="{Binding PauseResumeCommand}"
+                            Width="52" Height="52" Margin="8,0"
+                            Cursor="Hand" ToolTip="Pause / Resume">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="PauseBorder" Background="#0F3460" CornerRadius="26"
+                                        Width="52" Height="52">
+                                    <TextBlock x:Name="PauseLabel" Text="⏸" FontSize="20" Foreground="White"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="PauseBorder" Property="Background" Value="#1A4A80"/>
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter TargetName="PauseBorder" Property="Opacity" Value="0.3"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                </StackPanel>
+
+                <!-- Divider -->
+                <Border Grid.Row="3" Height="1" Background="#0F3460" Margin="0,0,0,14"/>
+
+                <!-- Settings Row 1: FPS + Mode -->
+                <Grid Grid.Row="4" Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="FPS:" Foreground="#B0BEC5" FontSize="12"
+                               VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <ComboBox Grid.Column="1" ItemsSource="{Binding FpsOptions}"
+                              SelectedItem="{Binding SelectedFps}"
+                              Width="70" Foreground="White" Background="#0F3460"
+                              BorderThickness="0" Padding="6,4" FontSize="12"/>
+
+                    <TextBlock Grid.Column="2" Text="{Binding RecordingModeText}"
+                               Foreground="#E94560" FontSize="11" FontWeight="SemiBold"
+                               VerticalAlignment="Center" HorizontalAlignment="Center"/>
+
+                    <Button Grid.Column="3" Content="🔲 Select Region"
+                            Command="{Binding SelectRegionCommand}"
+                            Style="{StaticResource FlatButtonStyle}"
+                            Padding="10,6" FontSize="11"/>
+                </Grid>
+
+                <!-- Settings Row 2: Audio options -->
+                <StackPanel Grid.Row="5" Orientation="Horizontal" Margin="0,0,0,12">
+                    <CheckBox Content="🎙 Microphone" IsChecked="{Binding RecordMic}" Margin="0,0,16,0"/>
+                    <CheckBox Content="🔊 System Audio" IsChecked="{Binding RecordSystemAudio}"/>
+                </StackPanel>
+
+                <!-- Output Folder Row -->
+                <Grid Grid.Row="6" Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Background="#0F3460" CornerRadius="6" Padding="8,6" Margin="0,0,6,0">
+                        <TextBlock Text="{Binding OutputFolder}" Foreground="#B0BEC5" FontSize="11"
+                                   TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                    </Border>
+
+                    <Button Grid.Column="1" Content="📁 Browse"
+                            Command="{Binding BrowseOutputFolderCommand}"
+                            Style="{StaticResource FlatButtonStyle}"
+                            Padding="8,6" FontSize="11" Margin="0,0,6,0"/>
+
+                    <Button Grid.Column="2" Content="Open"
+                            Command="{Binding OpenOutputFolderCommand}"
+                            Style="{StaticResource FlatButtonStyle}"
+                            Padding="8,6" FontSize="11"/>
+                </Grid>
+
+                <!-- Last Saved -->
+                <StackPanel Grid.Row="7" Orientation="Horizontal">
+                    <TextBlock Text="Last saved: " Foreground="#555" FontSize="10"/>
+                    <TextBlock Text="{Binding LastSavedPath}" Foreground="#4CAF50" FontSize="10"
+                               TextTrimming="CharacterEllipsis" MaxWidth="340"/>
+                </StackPanel>
+
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

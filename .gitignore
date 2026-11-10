@@ -1,0 +1,22 @@
+## Visual Studio / .NET build outputs
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+.vscode/
+
+## Publish outputs
+publish/
+*.exe
+*.dll
+*.pdb
+
+## OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
